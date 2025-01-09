@@ -9,4 +9,6 @@ class SHOOTING2D_API ACGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	ACGameMode();
 };

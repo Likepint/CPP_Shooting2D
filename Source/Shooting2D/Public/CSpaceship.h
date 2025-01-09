@@ -21,19 +21,52 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	// 자료형
-	// 정수, 실수, 논리, 문자열
-	// int 형의 경우 int32로 사용
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
-	int32 Num = 11;
+	// 포인터로 생성하면 좋은 점
+	// -> 포인터로 생성하지 않으면, 해당 헤더파일을 인클루드 필요
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
-	float Distance = 3.14f;
+	// 충돌체 컴포넌트
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UBoxComponent* Box;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
-	bool bGood = true;
+	// 스태틱 메시 컴포넌트
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
-	FString MyName = L"parkejongsu";
+protected:
+	// 이동
+	// P = P0 + v(direction * speed) * t
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float Speed = 500.f;
 
+//public:
+//	// 자료형
+//	// 정수, 실수, 논리, 문자열
+//	// int 형의 경우 int32로 사용
+//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
+//	int32 Num = 11;
+//
+//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
+//	float Distance = 3.14f;
+//
+//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
+//	bool bGood = true;
+//
+//	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Val")
+//	FString MyName = L"parkejongsu";
+//
+//	UFUNCTION(BlueprintCallable)
+//	// 블루프린트에서 호출 가능한 함수
+//	int32 MyAddCallable(int32 a, int32 b);
+//
+//	UFUNCTION(BlueprintPure)
+//	// 실행핀이 없는 순수함수
+//	int32 MyAddPure(int32 a, int32 b);
+//
+//	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+//	// 블루프린트에서 구현하는 가상함수
+//	int32 MyAddImplementableEvent(int32 a, int32 b);
+//
+//	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+//	int32 MyAddNativeEvent(int32 a, int32 b);
+//	int32 MyAddNativeEvent_Implementation(int32 a, int32 b);
 };
