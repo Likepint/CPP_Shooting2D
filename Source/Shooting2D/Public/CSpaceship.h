@@ -10,17 +10,6 @@ class SHOOTING2D_API ACSpaceship : public APawn
 	GENERATED_BODY()
 
 public:
-	ACSpaceship();
-
-protected:
-	virtual void BeginPlay() override;
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
 	// 포인터로 생성하면 좋은 점
 	// -> 포인터로 생성하지 않으면, 해당 헤더파일을 인클루드 필요
 
@@ -32,11 +21,38 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UArrowComponent* Arrow;
+
+public:
+	ACSpaceship();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:	
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+	void OnAxisVertical(float InVal);
+	void OnAxisHorizontal(float InVal);
+
+	void OnFire();
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ACBullet> Bullet;
+
 protected:
 	// 이동
 	// P = P0 + v(direction * speed) * t
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Speed = 500.f;
+
+	float Vertical;
+	float Horizontal;
 
 //public:
 //	// 자료형

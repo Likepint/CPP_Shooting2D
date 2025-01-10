@@ -1,6 +1,9 @@
 #include "CSpaceship.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/ArrowComponent.h"
+#include "CBullet.h"
 
 ACSpaceship::ACSpaceship()
 {
@@ -21,12 +24,17 @@ ACSpaceship::ACSpaceship()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> cube(L"/Script/Engine.StaticMesh'/Game/PJS/Meshes/Cube.Cube'");
 	if (!!cube.Succeeded())
 		StaticMesh->SetStaticMesh(cube.Object);
+
+	Arrow = CreateDefaultSubobject<UArrowComponent>("Arrow");
+	Arrow->SetupAttachment(Box);
+	Arrow->SetRelativeLocation(FVector(0, 0, 100));
+	Arrow->SetRelativeRotation(FQuat(FRotator(90, 0, 0)));
 }
 
 void ACSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//// Hello World / LOG
 	//UE_LOG(LogTemp, Warning, L"Hello World");
 
@@ -48,12 +56,27 @@ void ACSpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	{   // 오른쪽으로 이동
-	    // P = P0 + v(direction * speed) * t
+	//{   // 오른쪽으로 이동
+	//    // P = P0 + v(direction * speed) * t
+	//	FVector p0 = GetActorLocation();
+	//	FVector v = GetActorRightVector() * Speed;
+
+	//	SetActorLocation(p0 + v * DeltaTime);
+	//}
+
+	{ // 사용자의 입력에 따라 상하좌우 이동
+		// 상하좌우방향
+		FVector dir = FVector(0, Horizontal, Vertical);
+
+		// 길이가 1인 방향 벡터
+		dir.Normalize();
+
+		// P = P0 + vt
 		FVector p0 = GetActorLocation();
-		FVector v = GetActorRightVector() * Speed;
+		FVector v = dir * Speed;
 
 		SetActorLocation(p0 + v * DeltaTime);
+		//SetActorLocation(GetActorLocation() + dir.GetSafeNormal() * Speed, DeltaTime);
 	}
 }
 
@@ -61,6 +84,40 @@ void ACSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis(L"Vertical", this, &ACSpaceship::OnAxisVertical);
+	PlayerInputComponent->BindAxis(L"Horizontal", this, &ACSpaceship::OnAxisHorizontal);
+
+	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnFire);
+	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Released, this, &ACSpaceship::OnFire);
+}
+
+void ACSpaceship::OnAxisVertical(float InVal)
+{
+	Vertical = InVal;
+
+	//FVector P0 = GetActorLocation();
+	//FVector direction = (GetActorUpVector() * InVal).GetSafeNormal();
+	//FVector v = direction * Speed;
+
+	//SetActorLocation(P0 + v * GetWorld()->GetDeltaSeconds());
+}
+
+void ACSpaceship::OnAxisHorizontal(float InVal)
+{
+	Horizontal = InVal;
+
+	//FVector P0 = GetActorLocation();
+	//FVector direction = (GetActorRightVector() * InVal).GetSafeNormal();
+	//FVector v = direction * Speed;
+
+	//SetActorLocation(P0 + v * GetWorld()->GetDeltaSeconds());
+}
+
+void ACSpaceship::OnFire()
+{
+	FTransform transform = Arrow->GetComponentTransform();
+
+	GetWorld()->SpawnActor(Bullet, &transform);
 }
 
 //int32 ACSpaceship::MyAddCallable(int32 a, int32 b)
