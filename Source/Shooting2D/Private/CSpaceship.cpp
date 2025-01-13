@@ -88,7 +88,6 @@ void ACSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(L"Horizontal", this, &ACSpaceship::OnAxisHorizontal);
 
 	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnFire);
-	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Released, this, &ACSpaceship::OnFire);
 }
 
 void ACSpaceship::OnAxisVertical(float InVal)
