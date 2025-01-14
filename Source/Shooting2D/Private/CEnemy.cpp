@@ -1,6 +1,7 @@
 #include "CEnemy.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "CSpaceship.h"
 
 ACEnemy::ACEnemy()
 {
@@ -13,6 +14,14 @@ ACEnemy::ACEnemy()
 	// 스태틱 메시 컴포넌트 생성
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(Box);
+
+	// Overlap Event
+	Box->SetGenerateOverlapEvents(true);
+	// 콜리전 프리셋 Custom 설정
+	Box->SetCollisionProfileName(L"Enemy");
+
+	// 델리게이트를 사용하여 해당함수를 연결
+	Box->OnComponentBeginOverlap.AddDynamic(this, &ACEnemy::OnComponentBeginOverlap);
 }
 
 void ACEnemy::BeginPlay()
@@ -42,3 +51,7 @@ void ACEnemy::Tick(float DeltaTime)
 	SetActorLocation(p0 + v * DeltaTime);
 }
 
+void ACEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	this->Destroy();
+}

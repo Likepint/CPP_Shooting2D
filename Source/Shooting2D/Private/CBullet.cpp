@@ -1,6 +1,7 @@
 #include "CBullet.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "CEnemy.h"
 
 ACBullet::ACBullet()
 {
@@ -18,12 +19,20 @@ ACBullet::ACBullet()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> asset(L"/Script/Engine.StaticMesh'/Game/PJS/Meshes/Cube.Cube'");
 	if (asset.Succeeded())
 		StaticMesh->SetStaticMesh(asset.Object);
+
+	// Overlap Event
+	Box->SetGenerateOverlapEvents(true);
+	// 콜리전 프리셋 Custom 설정
+	Box->SetCollisionProfileName(L"Bullet");
+
+	// 델리게이트를 사용하여 해당함수를 연결
+	Box->OnComponentBeginOverlap.AddDynamic(this, &ACBullet::OnComponentBeginOverlap);
 }
 
 void ACBullet::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void ACBullet::Tick(float DeltaTime)
@@ -34,4 +43,12 @@ void ACBullet::Tick(float DeltaTime)
 	FVector v = GetActorForwardVector() * Speed;
 	
 	SetActorLocation(p0 + v * DeltaTime);
+}
+
+void ACBullet::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (ACEnemy* enemy = Cast<ACEnemy>(OtherActor))
+		enemy->Destroy();
+
+	this->Destroy();
 }

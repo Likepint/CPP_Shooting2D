@@ -4,6 +4,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/ArrowComponent.h"
 #include "CBullet.h"
+#include "CEnemy.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/PlayerController.h"
 
 ACSpaceship::ACSpaceship()
 {
@@ -29,14 +32,29 @@ ACSpaceship::ACSpaceship()
 	Arrow->SetupAttachment(Box);
 	Arrow->SetRelativeLocation(FVector(0, 0, 100));
 	Arrow->SetRelativeRotation(FQuat(FRotator(90, 0, 0)));
+
+	// Overlap Event
+	Box->SetGenerateOverlapEvents(true);
+	// 콜리전 프리셋 Custom 설정
+	Box->SetCollisionProfileName(L"Custom");
+	// 충돌 응답 Query And Physics로 설정
+	Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// Object Type을 1번 채널(Player)로 설정
+	Box->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	// 전체 채널 무시 설정
+	Box->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	// 에너미 채널 오버랩 설정
+	Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Overlap);
+	// 델리게이트를 사용하여 해당함수를 연결
+	Box->OnComponentBeginOverlap.AddDynamic(this, &ACSpaceship::OnComponentBeginOverlap);
 }
 
 void ACSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//// Hello World / LOG
-	//UE_LOG(LogTemp, Warning, L"Hello World");
+	// Hello World / LOG
+	UE_LOG(LogTemp, Warning, L"Hello World");
 
 	//// Debug Message
 	//GEngine->AddOnScreenDebugMessage(0, 5, FColor::Cyan, L"Hello World");
@@ -117,6 +135,16 @@ void ACSpaceship::OnFire()
 	FTransform transform = Arrow->GetComponentTransform();
 
 	GetWorld()->SpawnActor(Bullet, &transform);
+}
+
+void ACSpaceship::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (ACEnemy* enemy = Cast<ACEnemy>(OtherActor))
+	{
+		APlayerController* controller = Cast<APlayerController>(GetController());
+
+		UKismetSystemLibrary::QuitGame(GetWorld(), controller, EQuitPreference::Quit, true);
+	}
 }
 
 //int32 ACSpaceship::MyAddCallable(int32 a, int32 b)
