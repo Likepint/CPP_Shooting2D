@@ -45,6 +45,8 @@ ACSpaceship::ACSpaceship()
 	Box->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	// 에너미 채널 오버랩 설정
 	Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Overlap);
+	// DestroyZone과 오버랩 설정
+	Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	// 델리게이트를 사용하여 해당함수를 연결
 	Box->OnComponentBeginOverlap.AddDynamic(this, &ACSpaceship::OnComponentBeginOverlap);
 }
@@ -53,8 +55,8 @@ void ACSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Hello World / LOG
-	UE_LOG(LogTemp, Warning, L"Hello World");
+	//// Hello World / LOG
+	//UE_LOG(LogTemp, Warning, L"Hello World");
 
 	//// Debug Message
 	//GEngine->AddOnScreenDebugMessage(0, 5, FColor::Cyan, L"Hello World");
@@ -93,7 +95,7 @@ void ACSpaceship::Tick(float DeltaTime)
 		FVector p0 = GetActorLocation();
 		FVector v = dir * Speed;
 
-		SetActorLocation(p0 + v * DeltaTime);
+		SetActorLocation(p0 + v * DeltaTime, true);
 		//SetActorLocation(GetActorLocation() + dir.GetSafeNormal() * Speed, DeltaTime);
 	}
 }

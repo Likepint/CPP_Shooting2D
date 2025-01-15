@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "CEnemy.h"
+#include "CGameMode.h"
 
 ACBullet::ACBullet()
 {
@@ -48,7 +49,13 @@ void ACBullet::Tick(float DeltaTime)
 void ACBullet::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (ACEnemy* enemy = Cast<ACEnemy>(OtherActor))
+	{
 		enemy->Destroy();
+
+		// 현재 게임모드 로드 후 AddScore() 함수를 호출하여 점수 누적
+		if (ACGameMode* mode = Cast<ACGameMode>(GetWorld()->GetAuthGameMode()))
+			mode->AddScore(1);
+	}
 
 	this->Destroy();
 }

@@ -9,6 +9,7 @@ ACEnemy::ACEnemy()
 
 	// 콜리전 컴포넌트 생성
 	Box = CreateDefaultSubobject<UBoxComponent>("Box");
+	Box->SetBoxExtent(FVector(50));
 	SetRootComponent(Box);
 
 	// 스태틱 메시 컴포넌트 생성
