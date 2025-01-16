@@ -1,6 +1,7 @@
 #include "CSpaceship.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "CGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/ArrowComponent.h"
 #include "CBullet.h"
@@ -47,13 +48,21 @@ ACSpaceship::ACSpaceship()
 	Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Overlap);
 	// DestroyZone과 오버랩 설정
 	Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	// 델리게이트를 사용하여 해당함수를 연결
-	Box->OnComponentBeginOverlap.AddDynamic(this, &ACSpaceship::OnComponentBeginOverlap);
+	//// 델리게이트를 사용하여 해당함수를 연결
+	//Box->OnComponentBeginOverlap.AddDynamic(this, &ACSpaceship::OnComponentBeginOverlap);
 }
 
 void ACSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GM = Cast<ACGameMode>(GetWorld()->GetAuthGameMode());
+
+	// 현재 체력을 최대 체력으로 설정
+	CurHP = MaxHP;
+
+	// HP ProgressBar 갱신
+	GM->SetHP(CurHP, MaxHP);
 
 	//// Hello World / LOG
 	//UE_LOG(LogTemp, Warning, L"Hello World");
@@ -139,15 +148,24 @@ void ACSpaceship::OnFire()
 	GetWorld()->SpawnActor(Bullet, &transform);
 }
 
-void ACSpaceship::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACSpaceship::OnDamaged(int32 InDamage)
 {
-	if (ACEnemy* enemy = Cast<ACEnemy>(OtherActor))
-	{
-		APlayerController* controller = Cast<APlayerController>(GetController());
-
-		UKismetSystemLibrary::QuitGame(GetWorld(), controller, EQuitPreference::Quit, true);
-	}
+	CurHP -= InDamage;
+	
+	// HP Bar 갱신
+	GM->SetHP(CurHP, MaxHP);
 }
+
+//void ACSpaceship::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	if (ACEnemy* enemy = Cast<ACEnemy>(OtherActor))
+//	{
+//		OnDamaged(1);
+//		//APlayerController* controller = Cast<APlayerController>(GetController());
+//
+//		//UKismetSystemLibrary::QuitGame(GetWorld(), controller, EQuitPreference::Quit, true);
+//	}
+//}
 
 //int32 ACSpaceship::MyAddCallable(int32 a, int32 b)
 //{

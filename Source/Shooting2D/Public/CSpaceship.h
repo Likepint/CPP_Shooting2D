@@ -9,6 +9,10 @@ class SHOOTING2D_API ACSpaceship : public APawn
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY()
+	class ACGameMode* GM;
+
 public:
 	// 포인터로 생성하면 좋은 점
 	// -> 포인터로 생성하지 않으면, 해당 헤더파일을 인클루드 필요
@@ -41,9 +45,15 @@ protected:
 
 	void OnFire();
 
-private:
-	UFUNCTION()
-	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+public:
+	float GetCurHP() { return CurHP; }
+
+	// 데미지 처리
+	void OnDamaged(int32 InDamage); // 적이 호출
+
+//private:
+//	UFUNCTION()
+//	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -57,6 +67,14 @@ protected:
 
 	float Vertical;
 	float Horizontal;
+
+	// 최대 체력
+	UPROPERTY(EditAnywhere)
+	float MaxHP = 2;
+
+private:
+	// 현재 체력
+	float CurHP;
 
 //public:
 //	// 자료형
