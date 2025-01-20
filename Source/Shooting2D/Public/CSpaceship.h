@@ -39,11 +39,16 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	void MakeBullet();
+
 protected:
 	void OnAxisVertical(float InVal);
 	void OnAxisHorizontal(float InVal);
 
 	void OnFire();
+	void OnAutoFireClick();
+	void OnAutoFirePressed();
 
 public:
 	float GetCurHP() { return CurHP; }
@@ -57,7 +62,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ACBullet> Bullet;
+	TSubclassOf<class ACBullet> BulletFactory;
 
 	UPROPERTY(EditAnywhere)
 	class USoundBase* FireSound;
@@ -75,9 +80,27 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float MaxHP = 2;
 
+	UPROPERTY(EditAnywhere)
+	float FireTime = 0.2f;
+
 private:
 	// 현재 체력
 	float CurHP;
+
+	// 총알 오브젝트 풀 처리
+	// [ 필요 요소 ]
+	// - 최초 생성할 총알 갯수
+	UPROPERTY(EditAnywhere)
+	int32 MaxBulletCount = 20;
+
+	// - 총알 목록
+	UPROPERTY(EditAnywhere)
+	TArray<class ACBullet*> Magazine;
+
+	// 자동 발사 기능
+	UPROPERTY(VisibleAnywhere)
+	bool bAutoFire = false;
+	float CurrentTime = 0;
 
 //public:
 //	// 자료형

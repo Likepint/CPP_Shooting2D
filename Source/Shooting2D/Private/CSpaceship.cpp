@@ -76,6 +76,19 @@ void ACSpaceship::BeginPlay()
 	// HP ProgressBar 갱신
 	GM->SetHP(CurHP, MaxHP);
 
+	// Magazine Pool 총알 20개 추가
+	for (int32 i = 0; i < 20; ++i)
+	{
+		FActorSpawnParameters params;
+		// 항상 스폰
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		ACBullet* bullet = GetWorld()->SpawnActor<ACBullet>(BulletFactory, params);
+		bullet->SetActive(false);
+
+		Magazine.Add(bullet);
+	}
+
 	//// Hello World / LOG
 	//UE_LOG(LogTemp, Warning, L"Hello World");
 
@@ -119,6 +132,24 @@ void ACSpaceship::Tick(float DeltaTime)
 		SetActorLocation(p0 + v * DeltaTime, true);
 		//SetActorLocation(GetActorLocation() + dir.GetSafeNormal() * Speed, DeltaTime);
 	}
+
+	{// 자동 발사
+		if (bAutoFire) // bAutoFire == true
+		{
+			// 시간 누적
+			CurrentTime += DeltaTime;
+
+			// 누적 시간이 발사 시간이 되면
+			if (CurrentTime >= FireTime)
+			{
+				// 총알 생성
+				MakeBullet();
+
+				// 누적 시간 초기화
+				CurrentTime = 0;
+			}
+		}
+	}
 }
 
 void ACSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -128,7 +159,42 @@ void ACSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(L"Vertical", this, &ACSpaceship::OnAxisVertical);
 	PlayerInputComponent->BindAxis(L"Horizontal", this, &ACSpaceship::OnAxisHorizontal);
 
-	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnFire);
+	//PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnFire);
+
+	PlayerInputComponent->BindAction(L"AutoFire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnAutoFireClick);
+
+	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Pressed, this, &ACSpaceship::OnAutoFirePressed);
+	PlayerInputComponent->BindAction(L"Fire", EInputEvent::IE_Released, this, &ACSpaceship::OnAutoFirePressed);
+}
+
+void ACSpaceship::MakeBullet()
+{
+	bool bFindResult = false;
+
+	FTransform transform = Arrow->GetComponentTransform();
+
+	// 탄창을 전부 검사해서 비활성화된 총알을 탐색
+	for (auto& bullet : Magazine)
+	{
+		// 찾았다면 그 총알을 활성화 후 총구 위치에 배치
+		if (!bullet->StaticMesh->GetVisibleFlag()) // == false
+		{
+			bFindResult = !bFindResult;
+
+			// 활성화 시키고 총구 위치에 배치
+			bullet->SetActive(true);
+			bullet->SetActorTransform(transform);
+
+			// 소리 재생
+			UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
+			
+			// 반복 탈출
+			break;
+		}
+	}
+
+	if (!bFindResult) {} // == false
+		// 추가로 총알 생성
 }
 
 void ACSpaceship::OnAxisVertical(float InVal)
@@ -155,12 +221,31 @@ void ACSpaceship::OnAxisHorizontal(float InVal)
 
 void ACSpaceship::OnFire()
 {
-	FTransform transform = Arrow->GetComponentTransform();
+	MakeBullet();
 
-	GetWorld()->SpawnActor(Bullet, &transform);
+	//FTransform transform = Arrow->GetComponentTransform();
 
-	if (!!FireSound)
-		UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
+	//GetWorld()->SpawnActor(BulletFactory, &transform);
+
+	//if (!!FireSound)
+	//	UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
+}
+
+void ACSpaceship::OnAutoFireClick()
+{
+	bAutoFire = !bAutoFire;
+
+	CurrentTime = FireTime;
+}
+
+void ACSpaceship::OnAutoFirePressed()
+{
+	// 마우스 왼쪽 버튼을 누르면 bAutoFire를 On/Off 전환
+	bAutoFire = !bAutoFire;
+
+	// bAutoFire가 활성화되면, 총알 한발 발사
+	if (bAutoFire)
+		CurrentTime = FireTime;
 }
 
 void ACSpaceship::OnDamaged(int32 InDamage)

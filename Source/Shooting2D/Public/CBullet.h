@@ -9,7 +9,7 @@ class SHOOTING2D_API ACBullet : public AActor
 {
 	GENERATED_BODY()
 
-private:
+public:
 	// Box Collision
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* Box;
@@ -18,6 +18,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UStaticMeshComponent* StaticMesh;
 
+private:
 	UPROPERTY(EditAnywhere)
 	class USoundBase* ExplosionSound;
 
@@ -32,6 +33,9 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	void SetActive(bool bInVal);
 
 private:
 	UFUNCTION()

@@ -64,5 +64,18 @@ void ACBullet::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (!!ExplosionVFX)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, GetActorTransform());
 
-	this->Destroy();
+	// Magazine Pool
+	SetActive(false);
+	//this->Destroy();
+}
+
+void ACBullet::SetActive(bool bInVal)
+{
+	// bInVal 참이라면 충돌체도 활성화
+	StaticMesh->SetVisibility(bInVal);
+
+	if (bInVal)
+		Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	else
+		Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "CSpaceship.h"
+#include "CBullet.h"
 
 ACDestroyZone::ACDestroyZone()
 {
@@ -41,10 +42,17 @@ void ACDestroyZone::Tick(float DeltaTime)
 
 void ACDestroyZone::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	if (OtherActor->IsA<ACSpaceship>())
-		return;
+	// OtherActor == Bullet
+	if (ACBullet* bullet = Cast<ACBullet>(OtherActor))
+	{
+		bullet->SetActive(false);
 
-	OtherActor->Destroy();
+		return;
+	}
+
+	// OtherActor != CSpaceship
+	if (!(OtherActor->IsA<ACSpaceship>()))
+		OtherActor->Destroy();
 }
 
 //void ACDestroyZone::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
