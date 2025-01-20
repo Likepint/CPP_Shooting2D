@@ -20,6 +20,9 @@ void ACGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!!BGM)
+		UGameplayStatics::PlaySound2D(GetWorld(), BGM);
+
 	// 저장되어 있는 데이터 로드
 	LoadGameData();
 
@@ -119,5 +122,26 @@ void ACGameMode::PrintHighScore()
 void ACGameMode::ShowGameOver(bool bShow)
 {
 	if (!!MainUI)
+	{
+		// bShow 값에 따라 게임 일시 정지 상태 설정
+		UGameplayStatics::SetGamePaused(GetWorld(), bShow);
+
+		// bShow 값에 따라 마우스 커서 표시/해제
+		APlayerController* controller = GetWorld()->GetFirstPlayerController();
+		controller->SetShowMouseCursor(bShow);
+
+		// bShow 값에 따라 InputMode 설정
+		if (bShow)
+		{
+			// 포커스를 UI에 고정
+			controller->SetInputMode(FInputModeUIOnly());
+		}
+		else
+		{
+			// 포커스를 게임화면에 고정
+			controller->SetInputMode(FInputModeGameOnly());
+		}
+
 		MainUI->ShowGameOver(bShow);
+	}
 }

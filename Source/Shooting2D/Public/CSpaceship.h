@@ -59,6 +59,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ACBullet> Bullet;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* FireSound;
+
 protected:
 	// ¿Ãµø
 	// P = P0 + v(direction * speed) * t

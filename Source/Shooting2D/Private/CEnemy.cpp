@@ -4,6 +4,8 @@
 #include "CSpaceship.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
 
 ACEnemy::ACEnemy()
 {
@@ -74,9 +76,27 @@ void ACEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
 			ACGameMode* GM = Cast<ACGameMode>(GetWorld()->GetAuthGameMode());
 
 			if (!!GM)
+			{
+				//// 게임 일시 정지
+				//UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+				//// 마우스 커서
+				//APlayerController* controller = GetWorld()->GetFirstPlayerController();
+				//controller->SetShowMouseCursor(true);
+
+				//// 포커스를 UI에 고정
+				//controller->SetInputMode(FInputModeUIOnly());
+
 				GM->ShowGameOver(true);
+			}
 		}
 	}
 
 	this->Destroy();
+
+	if (!!ExplosionSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), ExplosionSound);
+
+	if (!!ExplosionVFX)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, GetActorTransform());
 }

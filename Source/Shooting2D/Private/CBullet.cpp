@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "CEnemy.h"
 #include "CGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 ACBullet::ACBullet()
 {
@@ -56,6 +57,12 @@ void ACBullet::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		if (ACGameMode* mode = Cast<ACGameMode>(GetWorld()->GetAuthGameMode()))
 			mode->AddScore(1);
 	}
+
+	if (!!ExplosionSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), ExplosionSound);
+
+	if (!!ExplosionVFX)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, GetActorTransform());
 
 	this->Destroy();
 }

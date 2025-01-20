@@ -13,6 +13,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCMainWidget> MainWidget;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* BGM;
+
 public:
 	ACGameMode();
 

@@ -16,6 +16,12 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* ExplosionSound;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ExplosionVFX;
+
 public:	
 	ACEnemy();
 

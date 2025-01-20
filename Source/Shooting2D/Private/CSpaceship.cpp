@@ -57,6 +57,18 @@ void ACSpaceship::BeginPlay()
 	Super::BeginPlay();
 
 	GM = Cast<ACGameMode>(GetWorld()->GetAuthGameMode());
+	// GameOverUI 숨김처리, 마우스 커서 초기화, 게임 일시정지 해제, 게임화면으로 포커스 설정 등 초기화 설정
+	GM->ShowGameOver(false);
+
+	//// 게임 일시 정지 해제
+	//UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	//// 마우스 커서
+	//APlayerController* controller = GetWorld()->GetFirstPlayerController();
+	//controller->SetShowMouseCursor(false);
+
+	//// 포커스를 게임화면에 고정
+	//controller->SetInputMode(FInputModeGameOnly());
 
 	// 현재 체력을 최대 체력으로 설정
 	CurHP = MaxHP;
@@ -146,6 +158,9 @@ void ACSpaceship::OnFire()
 	FTransform transform = Arrow->GetComponentTransform();
 
 	GetWorld()->SpawnActor(Bullet, &transform);
+
+	if (!!FireSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
 }
 
 void ACSpaceship::OnDamaged(int32 InDamage)
