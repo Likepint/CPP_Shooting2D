@@ -28,6 +28,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UArrowComponent* Arrow;
 
+	// 서브 기체
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UArrowComponent* Sub_L;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class UArrowComponent* Sub_R;
+
 public:
 	ACSpaceship();
 
@@ -60,12 +67,22 @@ public:
 //	UFUNCTION()
 //	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+private:
+	UPROPERTY(EditAnywhere)
+	class ACSubSpaceship* SubFlight_L;
+
+	UPROPERTY(EditAnywhere)
+	class ACSubSpaceship* SubFlight_R;
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ACBullet> BulletFactory;
 
 	UPROPERTY(EditAnywhere)
 	class USoundBase* FireSound;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACSubSpaceship> SubFlightFactory;
 
 protected:
 	// 이동

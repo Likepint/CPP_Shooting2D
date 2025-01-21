@@ -8,6 +8,7 @@
 #include "CEnemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/PlayerController.h"
+#include "CSubSpaceship.h"
 
 ACSpaceship::ACSpaceship()
 {
@@ -33,6 +34,17 @@ ACSpaceship::ACSpaceship()
 	Arrow->SetupAttachment(Box);
 	Arrow->SetRelativeLocation(FVector(0, 0, 100));
 	Arrow->SetRelativeRotation(FQuat(FRotator(90, 0, 0)));
+
+	// 서브 기체 L / R 위치를 생성, 부모를 루트로 설정
+	Sub_L = CreateDefaultSubobject<UArrowComponent>("Sub_L");
+	Sub_L->SetupAttachment(RootComponent);
+	Sub_L->SetRelativeLocation(FVector(0, -150, 0));
+	Sub_L->SetRelativeRotation(FQuat(FRotator(90, 0, 0)));
+
+	Sub_R = CreateDefaultSubobject<UArrowComponent>("Sub_R");
+	Sub_R->SetupAttachment(RootComponent);
+	Sub_R->SetRelativeLocation(FVector(0, 150, 0));
+	Sub_R->SetRelativeRotation(FQuat(FRotator(90, 0, 0)));
 
 	// Overlap Event
 	Box->SetGenerateOverlapEvents(true);
@@ -88,6 +100,20 @@ void ACSpaceship::BeginPlay()
 
 		Magazine.Add(bullet);
 	}
+
+	// 서브 기체 생성
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	SubFlight_L = GetWorld()->SpawnActor<ACSubSpaceship>(SubFlightFactory, params);
+	SubFlight_L->SetActorRelativeLocation(FVector(0, 0, 1000));
+	SubFlight_L->SetActorRelativeRotation(FQuat(FRotator(-90, 0, 0)));
+	SubFlight_L->Target = Sub_L;
+
+	SubFlight_R = GetWorld()->SpawnActor<ACSubSpaceship>(SubFlightFactory, params);
+	SubFlight_R->SetActorRelativeLocation(FVector(0, 0, 1000));
+	SubFlight_R->SetActorRelativeRotation(FQuat(FRotator(-90, 0, 0)));
+	SubFlight_R->Target = Sub_R;
 
 	//// Hello World / LOG
 	//UE_LOG(LogTemp, Warning, L"Hello World");
@@ -180,10 +206,11 @@ void ACSpaceship::MakeBullet()
 		if (!bullet->StaticMesh->GetVisibleFlag()) // == false
 		{
 			bFindResult = !bFindResult;
-
+			
 			// 활성화 시키고 총구 위치에 배치
 			bullet->SetActive(true);
-			bullet->SetActorTransform(transform);
+			//bullet->SetActorTransform(transform);
+			bullet->SetActorLocationAndRotation(transform.GetLocation(), transform.GetRotation());
 
 			// 소리 재생
 			UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
